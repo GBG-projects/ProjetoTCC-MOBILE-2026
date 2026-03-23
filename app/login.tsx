@@ -1,6 +1,6 @@
 
 
-import { Link, Redirect, useRouter } from "expo-router";
+import {Redirect, useRouter } from "expo-router";
 import { useState } from "react";
 import { Button, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -18,6 +18,15 @@ export default function Login(){
   }
     console.log("Login feito")
   }
+
+  
+      const style = {
+        cadastro:{
+          color: "#0046d2",
+                  fontWeight: "bold",
+                  textDecorationLine: "underline",
+        }
+      }
     return (
         <View
           style={{
@@ -47,7 +56,7 @@ export default function Login(){
               <Text>Usuario</Text>
               <TextInput   value={User} 
               onChangeText={text => newUser(text)}
-              placeholder="Ensira seu usuario"
+              placeholder="Insira seu usuario"
               style={
                 {
                   flexDirection: "row",
@@ -110,4 +119,5 @@ export default function Login(){
           </View>
         </View>
       );
+
 }

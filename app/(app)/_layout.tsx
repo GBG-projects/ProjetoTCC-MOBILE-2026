@@ -1,8 +1,8 @@
-import { Redirect, Stack } from 'expo-router';
+import { Redirect, Stack, Tabs } from 'expo-router';
 import { ActivityIndicator, View } from 'react-native';
 
 export default function ProtectedLayout() {
-  const isAuthenticated = false; // provisório – mude para true para testar home
+  const isAuthenticated = true; 
   const isLoading = false;
 
   if (isLoading) {
@@ -19,11 +19,13 @@ export default function ProtectedLayout() {
 
   // Usuário logado → mostra as rotas protegidas
   return (
-    <Stack screenOptions={{ headerStyle: {
+    < Tabs screenOptions={{ headerStyle: {
       backgroundColor:"red"
     } }}>
-      <Stack.Screen name="index" options={{ title: 'Home' }} />
+      <Tabs.Screen name="index" options={{ title: 'Pagina Principal' }} />
+      <Tabs.Screen name="configuracao" options={{ title: 'Configurações' }} />
+      <Tabs.Screen name="perfil" options={{ title: 'Perfil' }} />
       {/* <Stack.Screen name="profile" options={{ title: 'Perfil' }} /> */}
-    </Stack>
+    </Tabs>
   );
 }
