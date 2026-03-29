@@ -12,7 +12,7 @@ export default function Index() {
                       fontSize:23,
                       textAlign:"center"
                     }
-                  }>Senha</Text>
+                  }>Sen  rrrha</Text>
                   <TextInput placeholder="insira um usuario" 
                   style={
                     {
