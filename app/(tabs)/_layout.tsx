@@ -2,10 +2,28 @@ import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Redirect, router, Stack, Tabs } from 'expo-router';
 import { ActivityIndicator, Image, TouchableOpacity, View } from 'react-native';
+import { useUser } from '../../contexts/useUser';
+
+function HeaderAvatar() {
+  const { user } = useUser();
+
+  return (
+    <TouchableOpacity onPress={() => router.push('/profile')} style={{ marginRight: 16 }}>
+      {user?.foto ? (
+        <Image
+          source={{ uri: user.foto }}
+          style={{ width: 45, height: 45, borderRadius: 22.5, borderWidth: 2, borderColor: '#fff' }}
+        />
+      ) : (
+        <Ionicons name="person-circle-outline" size={45} color="#fff" />
+      )}
+    </TouchableOpacity>
+  );
+}
+
 
 export default function ProtectedLayout() {
   
-
   return (
     < Tabs screenOptions={
       
@@ -15,7 +33,6 @@ export default function ProtectedLayout() {
         tabBarInactiveTintColor: '#b4b4b4',
         headerStyle:{
           shadowColor:"#ce1414",
-          height: 120
         },
         tabBarHideOnKeyboard: true,
         tabBarStyle:{
@@ -38,15 +55,11 @@ export default function ProtectedLayout() {
       headerLeft: () => (
         <Image
           source={require('../../assets/images/focusIcon.png')}
-          style={{ width: 70, height: 70, borderRadius: 8, marginLeft: 16 }}
+          style={{ width: 50, height: 50, borderRadius: 8, marginLeft: 16 }}
         />
       ),
 
-      headerRight: () => (
-        <TouchableOpacity onPress={() => router.push('/profile')}>
-          <Ionicons name="person-circle-outline" size={45} color="#fff" style={{ marginRight: 16 }} />
-        </TouchableOpacity>
-      ),
+      headerRight: () => <HeaderAvatar />,
 
       }}>
       <Tabs.Screen name="rank" options={

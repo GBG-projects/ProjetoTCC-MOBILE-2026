@@ -1,98 +1,132 @@
-import { Redirect, useRouter } from "expo-router";
-import { useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
-  Button,
+  Image,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  Image,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import SignInButton from "./components/SignInButton";
-
+import SignInButton from "../components/SignInButton";
+import * as SecureStore from "expo-secure-store";  
+import LoadingScreen from "@/components/Loading";
 export default function Login() {
   const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-
-  function handleLogin() {
-    router.navigate('/(tabs)/rank')
-    if (!user || !password) {
-      alert("Preencha todos os campos!");
-      return;
+  const [loading,setLoading] = useState(false);
+  async function verifyAuth(){
+    const token = await SecureStore.getItemAsync("token")
+    if(token){
+    router.replace("/(tabs)/rank");
     }
-    
   }
+  
+
+useEffect(()=>{
+  verifyAuth()
+},[])
+  async function handleLogin() {
+  try {
+    setLoading(true)
+    const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/login/adm`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: user, senha: password }),
+    });
+
+    if (!response.ok) {
+      const erro = await response.json();
+      throw new Error(erro.erro ?? `HTTP error! Status: ${response.status}`);
+    }
+
+    const dadosUsuario = await response.json();
+
+    await SecureStore.setItemAsync("token", dadosUsuario.token);
+    await SecureStore.setItemAsync("usuario", JSON.stringify(dadosUsuario));
+
+    router.replace("/(tabs)/rank");
+  } catch (error) {
+    console.log("Error no login:", error);
+  }
+  finally{
+    setLoading(false)
+  }
+}
 
   return (
-  <LinearGradient
-    colors={['#003D8C', '#003D8C', '#005498', '#0076C0', '#0076C0']}
-    style={styles.container}
-  >
-    <View style={styles.container}>
-      <View style={styles.imageContainer}>
-        <Image
-          source={require("../assets/images/focusIcon.png")}
-          style={styles.image}
-        />
-      </View>
-
-      <View style={styles.formContainer}>
-        <View style={styles.inputContainer}>
-          <Ionicons name="mail" size={24} color="#26328c" />
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            placeholderTextColor="#999"
-            value={user}
-            onChangeText={setUser}
-            keyboardType="email-address"
+    <LinearGradient
+      colors={["#003D8C", "#003D8C", "#005498", "#0076C0", "#0076C0"]}
+      style={styles.container}
+    >
+      <View style={styles.container}>
+        <View style={styles.imageContainer}>
+          <Image
+            source={require("../assets/images/focusIcon.png")}
+            style={styles.image}
           />
         </View>
 
-        <View style={{ width: "80%", gap: 6 }}>
-          <View style={styles.passwordWrapper}>
-            <Ionicons name="lock-closed" size={24} color="#26328c" />
+        <View style={styles.formContainer}>
+          <View style={styles.inputContainer}>
+            <Ionicons name="mail" size={24} color="#26328c" />
             <TextInput
-              style={styles.passwordInput}
-              placeholder="Senha"
+              style={styles.input}
+              placeholder="Email"
               placeholderTextColor="#999"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
+              value={user}
+              onChangeText={setUser}
+              keyboardType="email-address"
             />
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-              <Ionicons
-                name={showPassword ? "eye" : "eye-off"}
-                size={24}
-                color="#26328c"
-              />
-            </TouchableOpacity>
           </View>
 
-          <TouchableOpacity onPress={() => router.navigate('/forgetPassword')}>
-            <Text style={styles.forgetPassword}>Esqueceu a senha?</Text>
-          </TouchableOpacity>
+          <View style={{ width: "80%", gap: 6 }}>
+            <View style={styles.passwordWrapper}>
+              <Ionicons name="lock-closed" size={24} color="#26328c" />
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Senha"
+                placeholderTextColor="#999"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+              />
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                <Ionicons
+                  name={showPassword ? "eye" : "eye-off"}
+                  size={24}
+                  color="#26328c"
+                />
+              </TouchableOpacity>
+            </View>
 
-        </View>
+            <TouchableOpacity
+              onPress={() => router.navigate("/forgetPassword")}
+            >
+              <Text style={styles.forgetPassword}>Esqueceu a senha?</Text>
+            </TouchableOpacity>
+          </View>
           <SignInButton onPress={handleLogin} />
-      </View> 
-    </View>
-  </LinearGradient>
-);
+        </View>
+      </View>
+      <View style={{flex:1}}>
+                <LoadingScreen visible={loading} message="Autenticando..." />
+      </View>
+    </LinearGradient>
+  );
 }
 
 const styles = StyleSheet.create({
-   container: {
-    flex:1,
-    height:"100%",
-    width:"100%",
-    alignItems: 'center',
-    justifyContent: 'center',
+  container: {
+    flex: 1,
+    height: "100%",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   card: {
     backgroundColor: "#5c76d5",
@@ -179,7 +213,6 @@ const styles = StyleSheet.create({
     top: 33,
   },
   label: {
-    // sem estilo inline original, mantido para semântica
   },
   signupRow: {
     width: "100%",
